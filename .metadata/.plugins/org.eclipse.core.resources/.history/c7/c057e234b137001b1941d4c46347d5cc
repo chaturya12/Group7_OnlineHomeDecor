@@ -1,0 +1,178 @@
+package com.cg.onlinehomedecor.controller;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.junit.Assert;
+
+import org.junit.jupiter.api.Test;
+
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+
+import org.springframework.mock.web.MockHttpServletResponse;
+
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+
+import com.cg.onlinehomedecor.domain.Product;
+import com.cg.onlinehomedecor.service.ProductService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+@RunWith(SpringRunner.class)
+
+@SpringBootTest
+@AutoConfigureMockMvc
+ public class ProductControllerTest {
+
+	@Autowired
+	    private MockMvc mockMvc;
+		
+		  @MockBean
+		  private ProductService productService;
+		  
+		 
+	 @Test
+	void  testAddProduct() throws Exception {
+		
+		  Product product= new Product(); 
+		  String uri="/Products";
+		  product.setProductId(1);
+		  product.setProductName("chairs");
+		  product.setProductCategory("furniture");
+		  product.setProductPrice(2000);
+		  product.setQuantity(300);
+		  String jsonInput=this.converttoJson(product);
+		  Mockito.when(productService.addProducts(Mockito.any(Product.class))).thenReturn(product);
+		  MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.post(uri)
+		                            .accept(MediaType.APPLICATION_JSON)
+		                            .content(jsonInput)
+		                            .contentType(MediaType.APPLICATION_JSON))
+				                    .andReturn();
+		  
+		  MockHttpServletResponse mockHttpServletResponse = mvcResult.getResponse();
+		  String jsonOutput = mockHttpServletResponse.getContentAsString();
+		  assertThat(jsonInput).isEqualTo(jsonOutput);
+			  Assert.assertEquals(HttpStatus.CREATED.value(),
+			  mockHttpServletResponse.getStatus());
+			 
+		 
+		}
+	 @Test
+		void testDeleteProduct() throws Exception {
+			Product product= new Product(); 
+			  String uri="/{productId}";
+			  product.setProductId(2);
+			  product.setProductName("sofa");
+			  product.setProductCategory("furniture");
+			  product.setProductPrice(22000);
+			  product.setQuantity(309);
+			  int productId=product.getProductId();
+			  String jsonInput=this.converttoJson(product);
+				
+				  Mockito.when(productService.viewProductByProductId(productId)).thenReturn( product);
+				  Mockito.when(productService.deleteProduct(productId)).thenReturn(product);
+				 
+			  MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.delete(uri,2)
+			                            .accept(MediaType.APPLICATION_JSON)
+			                            .content(jsonInput)
+			                            .contentType(MediaType.APPLICATION_JSON))
+					                    .andReturn();
+			 
+			  int status=mvcResult.getResponse().getStatus(); 
+
+		        Assert.assertEquals(HttpStatus.OK.value(),status);
+			  
+	 }
+	 @Test
+	 void testViewAllProduct() throws Exception {
+		 
+		 String uri="/all";
+		 Product product1=new Product();
+		 product1.setProductId(1);
+		  product1.setProductName("chairs");
+		  product1.setProductCategory("furniture");
+		  product1.setProductPrice(2000);
+		  product1.setQuantity(300);
+		  
+		  Product product2=new Product();
+		  product2.setProductId(2);
+		  product2.setProductName("sofa");
+		  product2.setProductCategory("furniture");
+		  product2.setProductPrice(22000);
+		  product2.setQuantity(309);
+		  
+		  List<Product> productList=new ArrayList<Product>();
+		  productList.add(product1);
+		  productList.add(product2);		  
+		  String jsonInput=this.converttoJson(productList);
+		  MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.get(uri)
+                  .accept(MediaType.APPLICATION_JSON)
+                  .content(jsonInput)
+                  .contentType(MediaType.APPLICATION_JSON))
+                  .andReturn();
+         
+         int status=mvcResult.getResponse().getStatus(); 
+        Assert.assertEquals(200,status);
+		  
+	 }
+
+	 @Test
+	 void testViewProductById() throws Exception {
+		 String uri="/{productId}" ;
+		 Product product=new Product();		 
+		  product.setProductId(2);
+		  product.setProductName("sofa");
+		  product.setProductCategory("furniture");
+		  product.setProductPrice(22000);
+		  product.setQuantity(309);
+		  String jsonInput=this.converttoJson(product);
+		  MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.get(uri,2)
+                  .accept(MediaType.APPLICATION_JSON)
+                  .content(jsonInput)
+                  .contentType(MediaType.APPLICATION_JSON))
+                  .andReturn();
+		  int status=mvcResult.getResponse().getStatus();
+		  Assert.assertEquals(200,status);
+				 
+	 }
+	 @Test
+	 void testUpdateProduct() throws Exception {
+		 String uri= "/{productId}";
+		 Product product=new Product();		 
+		  product.setProductId(5);
+		  product.setProductName("bed");
+		  product.setProductCategory("furniture");
+		  product.setProductPrice(22000);
+		  product.setQuantity(309);
+		  String jsonInput=this.converttoJson(product);
+		  MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.put(uri,2)
+                  .accept(MediaType.APPLICATION_JSON)
+                  .content(jsonInput)
+                  .contentType(MediaType.APPLICATION_JSON))
+                  .andReturn();
+		  Assert.assertEquals(200, mvcResult.getResponse().getStatus());
+		  		 
+	 }
+
+	private String converttoJson(Object product) throws JsonProcessingException {
+		ObjectMapper objectMapper = new ObjectMapper();
+        return objectMapper.writeValueAsString(product);
+	}
+	
+	 }
+
+

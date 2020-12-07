@@ -1,0 +1,5 @@
+package com.cg.onlinehomedecor.repository;
+
+public class PaymentRepository {
+
+}

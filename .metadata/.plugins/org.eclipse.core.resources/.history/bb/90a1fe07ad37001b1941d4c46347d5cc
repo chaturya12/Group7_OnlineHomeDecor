@@ -1,0 +1,11 @@
+package com.cg.onlinehomedecor.exception;
+
+public class ProductIdNotFoundException extends Exception{
+	public ProductIdNotFoundException() {
+		super();
+	}
+	public ProductIdNotFoundException(String msg) {
+		super(msg);
+	}
+
+}

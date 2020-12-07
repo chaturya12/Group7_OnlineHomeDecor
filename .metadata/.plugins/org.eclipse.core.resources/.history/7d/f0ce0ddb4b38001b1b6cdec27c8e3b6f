@@ -1,0 +1,72 @@
+package com.cg.onlinehomedecor.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.cg.onlinehomedecor.domain.Product;
+import com.cg.onlinehomedecor.exception.ProductIdNotFoundException;
+import com.cg.onlinehomedecor.repository.ProductRepository;
+
+
+/**
+ * 
+ * @author Chaturya
+ *
+ */
+@Service
+public class ProductService implements IProductService{
+	
+	@Autowired
+	private ProductRepository productRepository;
+
+	@Override
+	public Product addProducts(Product product) {
+		
+		return productRepository.save(product);
+	}	
+
+	@Override
+	  public Product updateProduct(Product product, int productId) throws ProductIdNotFoundException { 
+		  Product requiredProduct=productRepository.findByProductId(productId);
+		  if(requiredProduct!=null) {
+		
+		 requiredProduct.setProductPrice(product.getProductPrice());
+		 requiredProduct.setQuantity(product.getQuantity());
+		 return productRepository.save(requiredProduct);
+		 
+		  
+		  }
+		  else {
+				throw new ProductIdNotFoundException("Unable to get the product details. ");
+			}
+		  }	 
+	
+	@Override
+	public Product viewProductByProductId(int productId) throws ProductIdNotFoundException {
+		Product product= productRepository.findByProductId(productId);
+		if(product!=null) {
+			
+		return product;
+		}
+		else {
+			throw new ProductIdNotFoundException("Product with id "+productId+" is not present.");
+		}
+	}
+
+	@Override
+	public Product deleteProduct(int productId) {
+		Product product=productRepository.findByProductId(productId);
+		productRepository.deleteById(productId);
+		
+				return product;
+	}
+
+
+	@Override
+	public Iterable<Product> viewAllProducts() {
+		
+		return productRepository.findAll();
+	}
+
+}
+

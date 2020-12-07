@@ -1,0 +1,12 @@
+/**
+ * 
+ */
+package com.cg.onlinehomedecor.repository;
+
+/**
+ * @author challa chaturya
+ *
+ */
+public class ProductRepository {
+
+}
